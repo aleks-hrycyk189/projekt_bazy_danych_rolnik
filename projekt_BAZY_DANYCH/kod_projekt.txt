@@ -1,0 +1,231 @@
+CREATE TABLE gospodarstwo(
+numer_gospodarstwa VARCHAR(14) PRIMARY KEY,
+wlasciciel VARCHAR(50),
+REGON VARCHAR(9),
+adres VARCHAR(50),
+numer_telefonu VARCHAR(9),
+jednostka_nadzorujaca VARCHAR(70));
+
+INSERT INTO gospodarstwo(numer_gospodarstwa, wlasciciel, REGON, adres, numer_telefonu, jednostka_nadzorujaca)
+VALUES
+('PL75361298-001', 'Hrycyk Krzysztof', '752456124', 'Krelikiejmy 24', '789456123' ,
+'Agencja Restrukturyzacji i Modernizacji Rolnictwa');
+
+CREATE TABLE siedziba_stada(
+numer_siedziby_stada VARCHAR(10) PRIMARY KEY NOT NULL,
+stan_aktywnosci ENUM('aktywna','spoczynek'),
+gospodarstwo_nr VARCHAR(14),
+odbior_mleka ENUM('tak','nie'),
+FOREIGN KEY (gospodarstwo_nr) REFERENCES gospodarstwo (numer_gospodarstwa))ENGINE=InnoDB;
+
+INSERT INTO siedziba_stada(numer_siedziby_stada, stan_aktywnosci, gospodarstwo_nr, odbior_mleka)
+VALUES ('PL75361298', 'aktywna', 'PL75361298-001', 'tak');
+
+CREATE TABLE typ_bydla(
+id_typu  INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+nazwa_typu VARCHAR(10));
+
+INSERT INTO typ_bydla(id_typu, nazwa_typu) VALUES
+(1, 'krowa'),
+(2, 'jalowka'),
+(3, 'cielak');
+
+CREATE TABLE bydlo(
+Lp INT,
+nr_kolczyka VARCHAR(9) PRIMARY KEY NOT NULL,
+typ INT NOT NULL,
+data_urodzenia DATE,
+gatunek VARCHAR(9),
+kod_rasy ENUM('HO','RW','BS','HH','BN','SH','JM','SE','MO'),
+plec ENUM('samica XX','samiec XY'),
+typ_uzytkowy ENUM('mleczny','kombinowany','miesny'),
+czy_wystawa ENUM('tak','nie'),
+nr_siedziby VARCHAR(10) NOT NULL,
+nr_matki VARCHAR(12),
+FOREIGN KEY (nr_siedziby) REFERENCES siedziba_stada (numer_siedziby_stada),
+FOREIGN KEY (typ) REFERENCES typ_bydla (id_typu))ENGINE=InnoDB;
+
+INSERT INTO bydlo(Lp, nr_kolczyka, typ, data_urodzenia, gatunek, kod_rasy, plec, typ_uzytkowy, czy_wystawa, nr_siedziby, nr_matki)
+VALUES
+(1, '539741124',1, '2016-04-24', 'bydlo', 'HO', 'samica XX', 'mleczny', 'nie', 'PL75361298', 'brak danych'),
+(2, '539741125',1, '2016-09-29', 'bydlo', 'HO', 'samica XX', 'mleczny', 'nie', 'PL75361298', '123756845'),
+(3, '539741126',1, '2017-12-07', 'bydlo', 'HO', 'samica XX', 'mleczny', 'nie', 'PL75361298', 'brak danych'),
+(4, '539741127',1, '2017-06-12', 'bydlo', 'RW', 'samica XX', 'mleczny', 'nie', 'PL75361298', '145289659'),
+(5, '539741128',1, '2018-01-19', 'bydlo', 'HO', 'samica XX', 'mleczny', 'nie', 'PL75361298', 'brak danych'),
+(6, '539741129',1, '2016-08-10', 'bydlo', 'HO', 'samica XX', 'mleczny', 'nie', 'PL75361298', '545744594'),
+(7, '539741136',1, '2018-03-21', 'bydlo', 'RW', 'samica XX', 'mleczny', 'nie', 'PL75361298', '445872367'),
+(8, '539741137',1, '2017-06-15', 'bydlo', 'HO', 'samica XX', 'mleczny', 'nie', 'PL75361298', '985214637'),
+(9, '539741138',2, '2019-02-06', 'bydlo', 'HO', 'samica XX', 'mleczny', 'nie', 'PL75361298', '539741124'),
+(10, '539741139',2, '2019-04-09', 'bydlo', 'HO', 'samica XX', 'mleczny', 'nie', 'PL75361298', '539741126'),
+(11, '539741142',2, '2019-06-14', 'bydlo', 'BS', 'samica XX', 'mleczny', 'nie', 'PL75361298', '539741127'),
+(12, '539741143',2, '2019-09-25', 'bydlo', 'BS', 'samica XX', 'mleczny', 'nie', 'PL75361298', '539741125'),
+(13, '539741144',3, '2020-01-19', 'bydlo', 'HO', 'samica XX', 'mleczny', 'nie', 'PL75361298', '539741128'),
+(14, '539741152',3, '2020-03-02', 'bydlo', 'HO', 'samica XX', 'mleczny', 'nie', 'PL75361298', '539741136'),
+(15, '539741153',3, '2020-08-30', 'bydlo', 'BS', 'samica XX', 'mleczny', 'nie', 'PL75361298', '539741129'),
+(16, '539741154',3, '2020-10-07', 'bydlo', 'BS', 'samiec XY', 'mleczny', 'nie', 'PL75361298', '539741137');
+
+CREATE TABLE typ_zdarzenia(
+id_typu_zdarzenia INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+nazwa_typu_zdarzenia VARCHAR(25));
+
+INSERT INTO typ_zdarzenia(id_typu_zdarzenia, nazwa_typu_zdarzenia) 
+VALUES
+(1, 'urodzenie'),
+(2, 'kupno'),
+(3, 'sprzedaz'),
+(4, 'padniecie'),
+(5, 'przemieszczenie');
+
+CREATE TABLE zdarzenie(
+id_zdarzenia INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+typ_zdarzenia INT,
+data_zdarzenia DATE,
+wpis_do_ksiegi VARCHAR(30),
+opis TEXT(100),
+nr_kolczyka VARCHAR(14) NOT NULL,
+FOREIGN KEY (nr_kolczyka) REFERENCES bydlo (nr_kolczyka),
+FOREIGN KEY (typ_zdarzenia) REFERENCES typ_zdarzenia (id_typu_zdarzenia)) ENGINE=InnoDB;
+
+INSERT INTO zdarzenie(id_zdarzenia, typ_zdarzenia, data_zdarzenia, wpis_do_ksiegi, opis, nr_kolczyka)
+VALUES
+(1, 2, '2019-04-22', 'tak', 'kupno bydla sztuk 1 od nr gospodarstwa PL42533698-001','539741128'),
+(2, 2, '2019-12-22', 'tak', 'kupno bydla sztuk 1 od nr gospodarstwa PL74123647-001','539741136'),
+(3, 1, '2019-02-06', 'tak', 'urodzenie samica XX, nr matki 539741124', '539741138'),
+(4, 1, '2019-04-09', 'tak', 'urodzenie samica XX, nr matki 539741126', '539741139'),
+(5, 1, '2019-09-25', 'tak', 'urodzenie samica XX, nr matki 539741125', '539741143'),
+(6, 1, '2020-01-19', 'tak', 'urodzenie samica XX, nr matki 539741128', '539741144'),
+(7, 2, '2020-03-25', 'tak', 'kupno bydla sztuk 1 od nr gospodarstwa PL45213697-001','539741142'),
+(8, 1, '2020-03-02', 'tak', 'urodzenie samica XX, nr matki 539741136', '539741152'),
+(9, 1, '2020-08-30', 'tak', 'urodzenie samica XX, nr matki 539741129', '539741153'),
+(10, 1, '2020-10-07', 'tak', 'urodzenie samiec XY, nr matki 539741137', '539741154'),
+(11, 3, '2020-12-22', 'tak', 'sprzedaz bydla sztuk 1 , samiec XY, do nr_gospodarstwa PL45236987-001', '539741154');
+
+CREATE TABLE spoldzielnia_mleczarska(
+ID_spoldzielni VARCHAR(4) PRIMARY KEY NOT NULL,
+nazwa_spoldzielni VARCHAR(40),
+adres VARCHAR(40),
+oddzial VARCHAR(10),
+nr_gospodarstwa_odbior_mleka VARCHAR(14) NOT NULL,
+FOREIGN KEY (nr_gospodarstwa_odbior_mleka) REFERENCES gospodarstwo (numer_gospodarstwa))ENGINE=InnoDB;
+
+INSERT INTO spoldzielnia_mleczarska(ID_spoldzielni, nazwa_spoldzielni, adres, oddzial, nr_gospodarstwa_odbior_mleka)
+VALUES
+('7542', 'Spoldzielnia Mleczarska MLEKPOL', 'ul.Elewatorska 13', 'Mragowo','PL75361298-001');
+
+
+CREATE TABLE weterynarz(
+id_weterynarza VARCHAR(5) PRIMARY KEY NOT NULL,
+gabinet_weterynaryjny VARCHAR(70));
+
+INSERT INTO weterynarz(id_weterynarza, gabinet_weterynaryjny)
+VALUES
+('45632', 'Gabinet Weterynaryjny Masti-Wet w Korszach'),
+('45645', 'Gabinet Weterynaryjny Masti-Wet w Korszach'),
+('45648', 'Gabinet Weterynaryjny Masti-Wet w Korszach'),
+('23654', 'Gabinet Weterynaryjny Bovi-Wet w Barcianach'),
+('12357', 'Gabinet Weterynaryjny Rudzinski w Ketrzynie');
+
+CREATE TABLE choroba(
+id_choroby VARCHAR(5) PRIMARY KEY NOT NULL,
+nazwa_choroby VARCHAR(40));
+
+INSERT INTO choroba(id_choroby, nazwa_choroby)
+VALUES
+('12365', 'Ketoza'),
+('54874', 'Zatrzymanie lozyska'),
+('46325', 'Porazenie poporodowe'),
+('98756', 'Szelestnica'),
+('14527', 'Motylica'),
+('28965', 'Mastitis'),
+('96521', 'IBR'),
+('45327', 'Zanokcica');
+
+CREATE TABLE leczenie(
+nr_leczenia VARCHAR(3) PRIMARY KEY,
+podane_leki VARCHAR(50),
+czy_wyleczono VARCHAR(30),
+nr_leczonego_zw VARCHAR(9) NOT NULL,
+weterynarz VARCHAR(5),
+choroba VARCHAR(5) NOT NULL,
+FOREIGN KEY (weterynarz) REFERENCES weterynarz (id_weterynarza),
+FOREIGN KEY (nr_leczonego_zw) REFERENCES bydlo (nr_kolczyka),
+FOREIGN KEY (choroba) REFERENCES choroba(id_choroby))ENGINE=InnoDB;
+
+INSERT INTO leczenie(nr_leczenia, podane_leki, czy_wyleczono, nr_leczonego_zw, weterynarz, choroba)
+VALUES
+('12', 'Ketonnxe, Ketocare', 'tak', '539741127', '45632', '12365'),
+('14', 'Zabricin', 'tak', '539741125','23654', '96521'),
+('17', 'Vectonale, Miktrex', 'nie', '539741124', '45632', '46325'); 
+
+CREATE TABLE badanie_mleka(
+numer_probki INT PRIMARY KEY NOT NULL,
+data_wykonania DATE,
+komorki_somatyczne INT,
+mocznik INT,
+bakterie INT,
+nr_krowy VARCHAR(9) NOT NULL,
+spoldzielnia VARCHAR(4) NOT NULL,
+FOREIGN KEY (spoldzielnia) REFERENCES spoldzielnia_mleczarska(ID_spoldzielni),
+FOREIGN KEY (nr_krowy) REFERENCES bydlo(nr_kolczyka))ENGINE=InnoDB;
+
+INSERT INTO badanie_mleka(numer_probki, data_wykonania, komorki_somatyczne, mocznik, bakterie, nr_krowy, spoldzielnia)
+VALUES
+(14, '2020-12-17', 245, 123, 35, '539741127','7542'),
+(15, '2020-12-17', 452, 142, 78, '539741125','7542'),
+(16, '2020-12-17', 789, 165, 45, '539741124','7542');
+
+DELIMITER //
+CREATE TRIGGER czy_wyleczono
+BEFORE INSERT ON leczenie
+FOR EACH ROW
+BEGIN
+IF NEW.czy_wyleczono ='tak' 
+THEN
+SET NEW.czy_wyleczono ='tak, podano leki';
+END IF;
+END
+//
+DELIMITER ;
+
+
+DELIMITER //
+CREATE TRIGGER czy_wpis
+BEFORE INSERT ON zdarzenie
+FOR EACH ROW
+IF NEW.wpis_do_ksiegi = NULL
+THEN
+SET NEW.wpis_do_ksiegi = 'tak';
+END IF;
+END
+//
+DELIMITER ;
+
+
+show triggers;
+
+
+DELIMITER //
+CREATE PROCEDURE usun_martwe_zwierze()
+BEGIN
+DELETE FROM bydlo WHERE (SELECT b.nr_kolczyka FROM bydlo AS b INNER JOIN zdarzenie AS z ON b.nr_kolczyka=z.nr_kolczyka WHERE z.id_zdarzenia=4);
+END
+//
+DELIMITER ;
+
+
+DELIMITER //
+CREATE FUNCTION liczba_stada()
+    RETURNS INTEGER
+BEGIN
+    DECLARE ilosc_stada INT;
+    SELECT COUNT(*) INTO @ilosc_stada FROM bydlo;
+    RETURN @ilosc_stada;
+END //
+DELIMITER ;
+
+select liczba_stada();
+
+
+
+
+
